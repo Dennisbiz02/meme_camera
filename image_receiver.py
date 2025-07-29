@@ -2,13 +2,18 @@ import serial
 import struct
 import os
 from datetime import datetime
+import time
 
 
 def receive_images():
-    # COM7 mit 115200 Baud öffnen
-    ser = serial.Serial('COM7', 115200, timeout=5)
+    # COM7 mit 5000000 Baud öffnen
+    ser = serial.Serial('COM7', 5000000, timeout=5)
 
     print("Warte auf Bilder von COM7...")
+
+    # Performance-Tracking
+    start_time = time.time()
+    image_count = 0
 
     while True:
         try:
@@ -33,15 +38,22 @@ def receive_images():
                     if not os.path.exists(folder_path):
                         os.makedirs(folder_path)
 
-                    # Bild speichern
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    # Bild speichern mit Mikrosekunden für eindeutige Namen
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                     filename = os.path.join(
                         folder_path, f"image_{timestamp}.jpg")
 
                     with open(filename, 'wb') as f:
                         f.write(img_data)
 
-                    print(f"Bild gespeichert: {filename} ({img_len} Bytes)")
+                    image_count += 1
+
+                    # Performance-Ausgabe alle 10 Bilder
+                    if image_count % 10 == 0:
+                        elapsed = time.time() - start_time
+                        fps = image_count / elapsed
+                        print(
+                            f"Bild {image_count}: {filename} ({img_len} Bytes) - {fps:.1f} FPS")
 
         except Exception as e:
             print(f"Fehler: {e}")
