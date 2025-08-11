@@ -11,7 +11,10 @@ Adafruit_NeoPixel ring(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 // ========================== Takt / Auslöse-Intervall ==========================
 #define BAND_SPEED_MIN 1
 #define BAND_SPEED_MAX 180
-#define BAND_SPEED     180  // Action: hohe Frequenz (~3 fps laut Kommentar)
+#define BAND_SPEED     180  // BLEIBT UNVERÄNDERT (für Intervall & als m/s für Offset-Berechnung)
+
+// Offset in Zentimetern: >0 = später, <0 = früher
+#define OFFSET_CM      2    // Beispiel: 2 cm später auslösen
 
 static inline uint32_t getIntervalMs(int speed) {
   if (speed < BAND_SPEED_MIN) speed = BAND_SPEED_MIN;
@@ -91,7 +94,24 @@ void loop() {
   const uint32_t t0 = millis();
   const uint32_t targetInterval = getIntervalMs(BAND_SPEED);
 
-  // kurzer Trigger-Impuls
+  // ===== Timing: Offset cm → Zeitverschiebung (ms)
+  // Formel: t_ms = (OFFSET_CM / 100 m) / (BAND_SPEED m/s) * 1000 ms
+  // POSITIV ⇒ später; NEGATIV ⇒ früher
+  // Berechnung ABSICHTLICH INLINE (keine Zusatzvariable nur für die Rechnung)
+  const int32_t wait_pre =
+    (int32_t)targetInterval
+    + (int32_t)lround( ((double)OFFSET_CM / 100.0) / (double)BAND_SPEED * 1000.0 );
+
+  // Wir warten VOR der Aufnahme, um früher/später auszulösen.
+  // Wenn wait_pre negativ ist, wird gar nicht gewartet (→ früher).
+  if (wait_pre > 0) {
+    // verbleibende Zeit bis zur geplanten Auslösung in diesem Zyklus
+    const uint32_t dt = millis() - t0;
+    if ((int32_t)wait_pre - (int32_t)dt > 0) {
+      delay((uint32_t)((int32_t)wait_pre - (int32_t)dt));
+    }
+  }
+  // Kurzer Trigger-Impuls (falls extern genutzt)
   digitalWrite(TRIG_PIN, HIGH);
   digitalWrite(TRIG_PIN, LOW);
 
@@ -103,8 +123,10 @@ void loop() {
     esp_camera_fb_return(fb);
   }
 
-  const uint32_t dt = millis() - t0;
-  if (dt < targetInterval) {
-    delay(targetInterval - dt);
+  // Restwartezeit bis zum Ende des Basis-Intervalls (ohne Offset erneut zu addieren)
+  // Basis-Idee: pro Loop genau EIN Offset einrechnen (vor der Aufnahme)
+  const uint32_t dt_total = millis() - t0;
+  if (dt_total < (uint32_t)targetInterval) {
+    delay(targetInterval - dt_total);
   }
 }
