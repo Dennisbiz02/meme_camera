@@ -9,5 +9,6 @@
         "vector": "cpp",
         "string_view": "cpp",
         "initializer_list": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "C:/Users/de_heind/projects/meme_camera/lib/ESP32 Camera/examples/camera_example/main"
 }
