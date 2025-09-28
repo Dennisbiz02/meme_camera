@@ -11,8 +11,9 @@ import csv
 
 # -------------------- Konfiguration --------------------
 
-LABEL_TOP_LENGTH_CM = 8.0
-INPUT_DIR = Path("roh")  # <--- Hier anpassen, falls anderer Eingabeordner
+LABEL_TOP_LENGTH_CM = 9.7
+# <--- Hier anpassen, falls anderer Eingabeordner
+INPUT_DIR = Path("2025-09-25")
 INPUT_DIR.mkdir(parents=True, exist_ok=True)
 SAVE_OVERLAY = True
 OUT_DIR = Path("out")

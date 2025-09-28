@@ -12,10 +12,10 @@ Adafruit_NeoPixel ring(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 // Einheit v: Meter pro Minute
 #define BAND_SPEED_MIN 1
 #define BAND_SPEED_MAX 180
-#define BAND_SPEED     60   // m/min (wird im Code auf [MIN,MAX] geklemmt; nicht veränderbar zur Laufzeit)
+#define BAND_SPEED     20   // m/min (wird im Code auf [MIN,MAX] geklemmt; nicht veränderbar zur Laufzeit)
 
 // Abstand in Metern von der Lichtschranke bis zur Zielposition
-#define ABSTAND_M      1.0  // Beispiel: 1 m
+#define ABSTAND_M      0.95  // Beispiel: 1 m
 
 // Offset in Zentimetern: >0 = später, <0 = früher
 #define OFFSET_CM      0    // Beispiel: 2 cm später auslösen

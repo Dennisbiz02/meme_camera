@@ -1,2 +1,4 @@
+opencv-python>=4.10.0
+numpy>=1.26.0
 pyserial>=3.5
 Pillow>=9.0.0

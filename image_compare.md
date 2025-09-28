@@ -2,7 +2,7 @@
 
 ## Zielsetzung und Kontext
 
-Das Skript dient der automatisierten Ermittlung der oberen Kante weißer Etiketten auf blauem Hintergrund (REFERENZLINIE) in JPEG-Bildern sowie dem paarweisen Vergleich aufeinanderfolgender Bilder. Es berechnet orthogonale Abstände, Rotationsdifferenzen und kantenseitige Verschiebungen (linke und rechte Ecke) zwischen zwei Bildern und skaliert diese in physikalische Einheiten unter Annahme einer bekannten realen Kantenlänge (Standard: 8 cm).
+Das Skript dient der automatisierten Ermittlung der oberen Kante weißer Etiketten auf blauem Hintergrund (REFERENZLINIE) in JPEG-Bildern sowie dem paarweisen Vergleich aufeinanderfolgender Bilder. Es berechnet orthogonale Abstände, Rotationsdifferenzen und kantenseitige Verschiebungen (linke und rechte Ecke) zwischen zwei Bildern und skaliert diese in physikalische Einheiten unter Annahme einer bekannten realen Kantenlänge.
 
 Die Entwicklung entstand iterativ anhand mehrerer Anforderungen:
 
@@ -36,7 +36,9 @@ Die Entwicklung entstand iterativ anhand mehrerer Anforderungen:
 
 Externe Installation:
 
-```pip install opencv-python numpy```
+```bsh
+pip install opencv-python numpy
+```
 
 ## Verzeichnisstruktur und Ein-/Ausgabe
 

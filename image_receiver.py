@@ -30,6 +30,7 @@ def receive_images():
                 img_data = ser.read(img_len)
 
                 if len(img_data) == img_len:
+                    print(f"Empfange Bild der Größe {img_len} Bytes")
                     # Ordner mit aktuellem Datum erstellen
                     current_date = datetime.now().strftime("%Y-%m-%d")
                     folder_path = current_date
