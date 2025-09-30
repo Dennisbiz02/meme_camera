@@ -11,9 +11,8 @@ import csv
 
 # -------------------- Konfiguration --------------------
 
-LABEL_TOP_LENGTH_CM = 9.7
-# <--- Hier anpassen, falls anderer Eingabeordner
-INPUT_DIR = Path("2025-09-25")
+LABEL_TOP_LENGTH_CM = 9.7  # <--- Hier anpassen, falls anderer Eingabeordner
+INPUT_DIR = Path("2025-09-29")
 INPUT_DIR.mkdir(parents=True, exist_ok=True)
 SAVE_OVERLAY = True
 OUT_DIR = Path("out")
@@ -215,6 +214,11 @@ def compare_two_images(img_path_ref: Path, img_path_cur: Path):
         "left_offset_mm": d_left_mm,
         "right_offset_px": d_right_px,
         "right_offset_mm": d_right_mm,
+        # Absolute Eckpunkte (aktuelles Bild / B)
+        "cur_tl_abs": tuple(map(float, res_cur["tl"])),
+        "cur_tr_abs": tuple(map(float, res_cur["tr"])),
+        # Umrechnungsfaktor: 1 px in cm (aus Referenzbild)
+        "cm_per_px": cm_per_px
     }
 
 
@@ -233,12 +237,15 @@ if __name__ == "__main__":
         "Rotationsdifferenz",
         "Linke Ecke (B relativ zu A)",
         "Rechte Ecke (B relativ zu A)",
+        "linker eckpunkt absolut",
+        "rechter eckpunkt absolut",
+        "1px in cm",
     ]
     rows = []
 
-    for i in range(len(files) - 1):
-        img_a, img_b = files[i], files[i + 1]
-        stats = compare_two_images(img_a, img_b)
+    # Alle Bilder mit dem ersten Bild vergleichen (statt fortlaufend Bild i zu Bild i+1)
+    if len(files) >= 2:
+        ref = files[0]
 
         def pair(a, b):
             return f"{a.name}  ->  {b.name}"
@@ -255,16 +262,35 @@ if __name__ == "__main__":
             except Exception:
                 return "-"
 
-        rows.append([
-            pair(img_a, img_b),
-            fmt_mm_px(stats.get("offset_center_mm"),
-                      stats.get("offset_center_px")),
-            fmt_deg(stats.get("rotation_delta_deg")),
-            fmt_mm_px(stats.get("left_offset_mm"),
-                      stats.get("left_offset_px")),
-            fmt_mm_px(stats.get("right_offset_mm"),
-                      stats.get("right_offset_px")),
-        ])
+        def fmt_pt(pt):
+            try:
+                x, y = pt
+                return f"({x:.2f}, {y:.2f})"
+            except Exception:
+                return "-"
+
+        def fmt_factor(v):
+            try:
+                return f"{v:.8f}"
+            except Exception:
+                return "-"
+
+        for i in range(1, len(files)):
+            img_a, img_b = ref, files[i]
+            stats = compare_two_images(img_a, img_b)
+            rows.append([
+                pair(img_a, img_b),
+                fmt_mm_px(stats.get("offset_center_mm"),
+                          stats.get("offset_center_px")),
+                fmt_deg(stats.get("rotation_delta_deg")),
+                fmt_mm_px(stats.get("left_offset_mm"),
+                          stats.get("left_offset_px")),
+                fmt_mm_px(stats.get("right_offset_mm"),
+                          stats.get("right_offset_px")),
+                fmt_pt(stats.get("cur_tl_abs")),
+                fmt_pt(stats.get("cur_tr_abs")),
+                fmt_factor(stats.get("cm_per_px")),
+            ])
 
     csv_path = OUT_DIR / "vergleichsergebnisse.csv"
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
